@@ -1,4 +1,4 @@
-##  CSC_722_Project
+##  [CSC722: Advanced Topics in Machine Learning Project] Recipe Recommendation System
 # Project Goal: 
 Data-driven recipe recommendation system using web-scraped recipe data (including but not limited to data like ingredients, health facts, etc.) and user’s historical preference.
 # Motivation:
