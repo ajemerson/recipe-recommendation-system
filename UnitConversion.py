@@ -3,14 +3,14 @@
 
 # # Unit Conversion
 
-# In[143]:
+# In[35]:
 
 
 import pandas as pd
 import string
 
 
-# In[144]:
+# In[36]:
 
 
 """
@@ -63,7 +63,7 @@ def convert_to_ml(num, unit):
     return(output)
 
 
-# In[145]:
+# In[37]:
 
 
 """
@@ -109,7 +109,7 @@ def convert_to_grams(num, unit):
 
 # ## Final Conversion Function
 
-# In[146]:
+# In[38]:
 
 
 """
@@ -138,7 +138,7 @@ def convert(num, unit, df=None, i=None):
         the_unit = "pint"
         weight = 473.176
         volume = True
-    elif "cup" in unit:
+    elif "cup" in unit or 'c' == unit:
         the_unit = "cup"
         weight = 240
         volume = True
@@ -166,11 +166,11 @@ def convert(num, unit, df=None, i=None):
         the_unit = "liter"
         weight = 1000
         volume = True
-    elif "cubic foot" in unit or "f3" in unit:
+    elif "cubic foot" in unit or "f3" in unit or "feet" in unit:
         the_unit = "cubic foot"
         weight = 28316.8
         volume = True
-    elif "cubic inch" in unit or "in3" in unit:
+    elif "cubic inch" in unit or "in3" in unit or "inch" in unit:
         the_unit = "cubic inch"
         weight = 16.3871
         volume = True
@@ -214,30 +214,30 @@ def convert(num, unit, df=None, i=None):
         mass = True
         
     # Convert the unit
-    output = weight * num
+    output = round(weight * num, 3)
     if volume:
         print('Converted', the_unit, 'to milliliters')
         if i != None:
             df.loc[i, 'Volume'] = output
-            df.loc[i:, 'Mass'] = 0
+            df.loc[i, 'Mass'] = 0
     elif mass:
         print('Converted', the_unit, 'to grams')
         if i != None:
             df.loc[i, 'Mass'] = output
-            df.loc[i:, 'Volume'] = 0
+            df.loc[i, 'Volume'] = 0
     print(output)
     return(output)
 
 
 # ## Conversion Testing
 
-# In[147]:
+# In[39]:
 
 
 import random
 
 
-# In[148]:
+# In[40]:
 
 
 # List of some expected input units to the function
@@ -245,7 +245,7 @@ units = ['oz', 'ounces', 'ounce', 'gram', 'grams', 'ml', 'l', 'pound', 'lb',
         'ozs', 'stone', 'st', 's.t.', 'milliliters', 'ton', 't', 'micrograms',
         'microgram', 'kilograms', 'kg', 'kilogram', 'metric ton', 'mt', 'm.t',
         'metric tonne', 'cubic inch', 'cubic inches', 'cubic feet', 'f3', 'in3',
-        'liter', 'cubic meter', 'm3', 'tsp', 'teaspoons', 'teaspoon', 'tsbp',
+        'liter', 'cubic meter', 'm3', 'tsp', 'teaspoons', 'teaspoon', 'tbsp',
         'tablespoons', 'cup', 'cups', 'c', 'floz', 'fluid oz', 'fluid ounces', 
         'quart', 'qu', 'qt', 'pint', 'pt', 'gallons', 'gal']
 
@@ -257,7 +257,7 @@ nums = [random.randint(1, 1000) for i in range(tests)]
 indices = [random.randint(0, len(units) - 1) for i in range(tests)]
 
 
-# In[149]:
+# In[41]:
 
 
 df = pd.DataFrame(columns=["Volume", "Mass"])
@@ -267,8 +267,9 @@ for i in range(tests):
     print()
 
 
-# In[150]:
+# In[42]:
 
 
+pd.options.display.float_format = '{:,.3f}'.format
 df
 
