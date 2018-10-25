@@ -40,13 +40,13 @@ def get_category_urls():
         return sub_category_urls'''
 
 
-def all_recipe_scrape(type, url):
+def example_recipe_scrape(type, url):
         """
         Sample code to produce a list of ingredients for a given recipe.
         The example recipe is 'Whole-wheat-pancakes-from-scratch' from the 'Pancakes' subcategory under the 'Breakfast and Brunch' category.
         :return: list of string ingredients. These need to be parsed.
         """
-        all_final_data = pd.DataFrame(columns=['type', 'name', 'ingredients'])
+        final = pd.DataFrame(columns=['type', 'name', 'ingredients'])
         for i in range(2):
             example_sub_category = url + "?page=" + str(i)
             print(example_sub_category)
@@ -68,9 +68,9 @@ def all_recipe_scrape(type, url):
                     ingredients.append(ingredients_soup[ingredient]['title'])
 
                 j = j + 1
-                all_final_data.loc[len(all_final_data)] = [type, recipe_title, ingredients]
+                final.loc[len(final)] = [type, recipe_title, ingredients]
 
-        return all_final_data
+        return final
 
 
 if __name__ == "__main__":
@@ -78,9 +78,11 @@ if __name__ == "__main__":
     # TODO: Automate the dataset creation in the main function.
 
     categories = get_category_urls()
-    data_all = pd.DataFrame(columns=['type', 'name', 'ingredients'])
+    #print(categories)
+    data = pd.DataFrame(columns=['type', 'name', 'ingredients'])
     for i in range(len(categories)):
-        temp = all_recipe_scrape(categories.loc[i]['type'], categories.loc[i]['url'])
-        data_all = data_all.append(temp)
-    print(data_all)
-    data_all.to_csv('data.csv')
+        temp = example_recipe_scrape(categories.loc[i]['type'], categories.loc[i]['url'])
+        data = data.append(temp)
+    print(data)
+
+    data.to_csv('data.csv')
