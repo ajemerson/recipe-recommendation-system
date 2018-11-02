@@ -44,10 +44,9 @@ def get_subcategory_urls(categories):
     return subtypes
 
 
-def example_recipe_scrape(type, subtype, url):
+def generate_dataset(type, subtype, url):
         """
-        Sample code to produce a list of ingredients for a given recipe.
-        The example recipe is 'Whole-wheat-pancakes-from-scratch' from the 'Pancakes' subcategory under the 'Breakfast and Brunch' category.
+        Scrapes all recipes associated with each subcategory passed to the function.
         :return: dataframe with columns ['type', 'subtype', 'recipe_title', 'ingredients']. The ingredient lists will need to be parsed.
         """
         final = pd.DataFrame(columns=['type', 'subtype', 'name', 'ingredients'])
@@ -89,7 +88,7 @@ if __name__ == "__main__":
 
     data = pd.DataFrame(columns=['type', 'subtype', 'name', 'ingredients'])
     for i in range(len(sub_categories)):
-        temp = example_recipe_scrape(sub_categories.loc[i]['type'], sub_categories.loc[i]['subtype'], sub_categories.loc[i]['url'])
+        temp = generate_dataset(sub_categories.loc[i]['type'], sub_categories.loc[i]['subtype'], sub_categories.loc[i]['url'])
         data = data.append(temp)
     # print(data)
 
