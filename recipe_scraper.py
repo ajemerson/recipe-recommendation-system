@@ -2,6 +2,7 @@ import requests
 import re
 import pandas as pd
 from bs4 import BeautifulSoup
+import ast
 
 
 def get_category_urls():
@@ -47,22 +48,26 @@ def get_subcategory_urls(categories):
 def generate_dataset(type, subtype, url):
         """
         Scrapes all recipes associated with each subcategory passed to the function.
+        :param type: e.g., Breakfast and Brunch
+        :param subtype: e.g., Pancakes
+        :param url: subtype url - will loop through each page
         :return: dataframe with columns ['type', 'subtype', 'recipe_title', 'ingredients']. The ingredient lists will need to be parsed.
         """
         final = pd.DataFrame(columns=['type', 'subtype', 'name', 'ingredients'])
-        for i in range(2):
-            example_sub_category = url + "?page=" + str(i + 1)
-            print(example_sub_category)
-            page = requests.get(example_sub_category)
+        page_count = get_last_page(url)
+        for i in range(1, page_count):
+            sub_category = url + "?page=" + str(i)
+            print(sub_category)
+            page = requests.get(sub_category)
             soup = BeautifulSoup(page.content, 'lxml')
             grid = soup.find('div', attrs={'class': 'fixed-grid'})
             articles = grid.find_all('article', attrs={'class': 'fixed-recipe-card'})
             j = 0
             for article in articles:
                 ingredients = []
-                example_recipe_url = article.find('a').get('href')
-                recipe_title = article.find('span', attrs={'class':'fixed-recipe-card__title-link'}).getText()
-                recipe_request = requests.get(example_recipe_url)
+                recipe_url = article.find('a').get('href')
+                recipe_title = article.find('span', attrs={'class': 'fixed-recipe-card__title-link'}).getText()
+                recipe_request = requests.get(recipe_url)
                 recipe_soup = BeautifulSoup(recipe_request.content, 'lxml')
                 ingredients_space = recipe_soup.find('div', attrs={'id': 'polaris-app'})
                 ingredients_soup = ingredients_space.find_all('label', attrs={'ng-class': '{true: \'checkList__item\'}[true]'})
@@ -74,6 +79,21 @@ def generate_dataset(type, subtype, url):
                 final.loc[len(final)] = [type, subtype, recipe_title, ingredients]
 
         return final
+
+
+def get_last_page(url):
+    """
+    Finds the last page available for a given subtype of recipe
+    :param url: subtype url. e.g., for Pancakes
+    :return: integer (number) corresponding to the last page available
+    """
+    page_number = 1
+    page_request = requests.get(url + "?page=" + str(page_number))
+    while page_request.status_code == 200:
+        page_number = page_number + 1
+        page_request = requests.get(url + "?page=" + str(page_number))
+
+    return page_number
 
 
 if __name__ == "__main__":

@@ -1,22 +1,13 @@
-
-# coding: utf-8
-
-# # Unit Conversion
-
-# In[1]:
-
-
 import pandas as pd
 import string
+import random
 
 
-# In[2]:
-
-
-"""
-Convert any volume measurement from the current unit to milliliters
-"""
 def convert_to_ml(num, unit):
+    """
+    Convert any volume measurement from the current unit to milliliters
+
+    """
     table = str.maketrans({key: None for key in string.punctuation})
     unit = unit.translate(table).lower().strip()
     the_unit = ""
@@ -60,16 +51,16 @@ def convert_to_ml(num, unit):
         
     output = weight * num
     print('Converted', the_unit, 'to milliliters')
-    return(output)
+    return output
 
 
-# In[3]:
-
-
-"""
-Convert any mass measurement to grams
-"""
 def convert_to_grams(num, unit):
+    """
+    Convert any mass measurement to grams
+    :param num:
+    :param unit:
+    :return:
+    """
     table = str.maketrans({key: None for key in string.punctuation})
     unit = unit.translate(table).lower().strip()
     the_unit = ""
@@ -104,19 +95,13 @@ def convert_to_grams(num, unit):
         
     output = weight * num
     print('Converted', the_unit, 'to grams')
-    return(output)
+    return output
 
 
-# ## Final Conversion Function
-
-# In[11]:
-
-
-"""
-Convert the unit, and let the code decide whether the measurement is
-volume or mass
-"""
 def convert(num, unit, ingred):
+    """
+    Convert the unit, and let the code decide whether the measurement is volume or mass
+    """
     the_unit = ""
     weight = 0
     volume = False
@@ -238,24 +223,7 @@ def convert(num, unit, ingred):
         measurements = [output]
         print('Ingredient expressed as quantity')
     # print(output)
-    return(measurements, cols, quantity)
-
-
-# In[5]:
-
-
-#convert(0.5, 'cup', 'wheat_germ')
-
-
-# ## Conversion Testing
-
-# In[6]:
-
-
-import random
-
-
-# In[7]:
+    return measurements, cols, quantity
 
 
 # List of some expected input units to the function
@@ -275,9 +243,6 @@ nums = [random.randint(1, 1000) for i in range(tests)]
 indices = [random.randint(0, len(units) - 1) for i in range(tests)]
 
 
-# In[8]:
-
-
 def test():
     df = pd.DataFrame(columns=["Volume", "Mass"])
     for i in range(tests):
@@ -286,10 +251,6 @@ def test():
         print()
 
 
-# In[9]:
-
-
 def print_df():
     pd.options.display.float_format = '{:,.3f}'.format
-    df
 
