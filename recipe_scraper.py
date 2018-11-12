@@ -3,6 +3,7 @@ import re
 import pandas as pd
 from bs4 import BeautifulSoup
 import ast
+import time
 
 
 def get_category_urls():
@@ -10,7 +11,16 @@ def get_category_urls():
     Finds the high-level categories of recipes; used for extracting URL patterns
     :return: dataframe with category names and associated urls. Columns will be ['type', url']
     """
-    page = requests.get("https://www.allrecipes.com/recipes/")
+    page = ""
+    while page == "":
+        try:
+            page = requests.get("https://www.allrecipes.com/recipes/")
+            break
+        except requests.exceptions.ConnectionError:
+            print("Connection refused by server...")
+            print("Sleeping for 5 seconds...")
+            time.sleep(5)
+            continue
     content = page.content
     soup = BeautifulSoup(content, 'lxml')
     meal_types = soup.find('div', attrs={'class': 'all-categories-col'})
@@ -31,7 +41,16 @@ def get_subcategory_urls(categories):
     subtypes = pd.DataFrame(columns=['type', 'subtype', 'url'])
     for index, row in categories.iterrows():
         sub_category_urls = pd.DataFrame(columns=['type', 'subtype', 'url'])
-        page = requests.get(row.url)
+        page = ""
+        while page == "":
+            try:
+                page = requests.get(row.url)
+                break
+            except requests.exceptions.ConnectionError:
+                print("Connection refused by server...")
+                print("Sleeping for 5 seconds...")
+                time.sleep(5)
+                continue
         content = page.content
         soup = BeautifulSoup(content, 'lxml')
         urls = soup.find('div', attrs={'class': 'grid slider'})
@@ -58,7 +77,16 @@ def generate_dataset(type, subtype, url):
         for i in range(1, page_count):
             sub_category = url + "?page=" + str(i)
             print(sub_category)
-            page = requests.get(sub_category)
+            page = ""
+            while page == "":
+                try:
+                    page = requests.get(sub_category)
+                    break
+                except requests.exceptions.ConnectionError:
+                    print("Connection refused by server...")
+                    print("Sleeping for 5 seconds...")
+                    time.sleep(5)
+                    continue
             soup = BeautifulSoup(page.content, 'lxml')
             grid = soup.find('div', attrs={'class': 'fixed-grid'})
             articles = grid.find_all('article', attrs={'class': 'fixed-recipe-card'})
@@ -91,7 +119,16 @@ def get_last_page(url):
     page_request = requests.get(url + "?page=" + str(page_number))
     while page_request.status_code == 200:
         page_number = page_number + 1
-        page_request = requests.get(url + "?page=" + str(page_number))
+        page_request = ""
+        while page_request == "":
+            try:
+                page_request = requests.get(url + "?page=" + str(page_number))
+                break
+            except requests.exceptions.ConnectionError:
+                print("Connection refused by server...")
+                print("Sleeping for 5 seconds...")
+                time.sleep(5)
+                continue
 
     return page_number
 
