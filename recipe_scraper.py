@@ -95,7 +95,16 @@ def generate_dataset(type, subtype, url):
                 ingredients = []
                 recipe_url = article.find('a').get('href')
                 recipe_title = article.find('span', attrs={'class': 'fixed-recipe-card__title-link'}).getText()
-                recipe_request = requests.get(recipe_url)
+                recipe_request = ""
+                while recipe_request == "":
+                    try:
+                        recipe_request = requests.get(recipe_url)
+                        break
+                    except requests.exceptions.ConnectionError:
+                        print("Connection refused by server...")
+                        print("Sleeping for 5 seconds...")
+                        time.sleep(5)
+                        continue
                 recipe_soup = BeautifulSoup(recipe_request.content, 'lxml')
                 ingredients_space = recipe_soup.find('div', attrs={'id': 'polaris-app'})
                 ingredients_soup = ingredients_space.find_all('label', attrs={'ng-class': '{true: \'checkList__item\'}[true]'})
@@ -144,9 +153,10 @@ if __name__ == "__main__":
     sub_categories = sub_categories.reset_index()
 
     data = pd.DataFrame(columns=['type', 'subtype', 'name', 'ingredients'])
-    for i in range(len(sub_categories)):
+    for i in range(16, len(sub_categories)):
+        # Will save data each iteration and print out where the scraper left off in case of connection error.
+        print(i)
         temp = generate_dataset(sub_categories.loc[i]['type'], sub_categories.loc[i]['subtype'], sub_categories.loc[i]['url'])
         data = data.append(temp)
-    # print(data)
+        data.to_csv('data2.csv')
 
-    data.to_csv('data.csv')
