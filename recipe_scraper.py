@@ -153,10 +153,10 @@ if __name__ == "__main__":
     sub_categories = sub_categories.reset_index()
 
     data = pd.DataFrame(columns=['type', 'subtype', 'name', 'ingredients'])
-    for i in range(16, len(sub_categories)):
+    for i in range(21, len(sub_categories)):
         # Will save data each iteration and print out where the scraper left off in case of connection error.
         print(i)
         temp = generate_dataset(sub_categories.loc[i]['type'], sub_categories.loc[i]['subtype'], sub_categories.loc[i]['url'])
         data = data.append(temp)
-        data.to_csv('data2.csv')
+        data.to_csv('data3.csv')
 
