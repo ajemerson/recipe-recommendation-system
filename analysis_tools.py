@@ -11,11 +11,6 @@ from sklearn.mixture import GaussianMixture
 def draw_ellipse(position, covariance, ax=None, **kwargs):
     """
     Draws an ellipse with a given position and covariance (for clustering)
-    :param position:
-    :param covariance:
-    :param ax:
-    :param kwargs:
-    :return:
     """
     ax = ax or plt.gca()
     if covariance.shape == (2, 2):
@@ -61,7 +56,7 @@ def get_pca_components(X, num_components=2):
     return X_pca
 
 
-def cluster(X, num_clusters):
+def get_cluster_assignments(X, num_clusters):
     """
     Quick way to retrieve cluster labels directly using k_means, passing value k
     :param X: type dataframe
