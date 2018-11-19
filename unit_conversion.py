@@ -30,21 +30,17 @@ def convert(num, unit, ingred):
         the_unit = "cup"
         weight = 240
         volume = True
-    elif "fl" in unit or "oz" or "ounce" in unit:
+    elif ("fl" in unit and "oz" in unit) or ("fl" in unit and "ounce" in unit):
         the_unit = "fl oz"
         weight = 29.5735
         volume = True
-    elif "tbsp" in unit or "table" in unit:
+    elif "tbsp" in unit or "table" in unit or "tablespoon" in unit:
         the_unit = "tablespoon"
         weight = 14.7868
         volume = True
     elif "tsp" in unit or "tea" in unit:
         the_unit = "teaspoon"
         weight = 4.92892
-        volume = True
-    elif "m3" in unit or "cubic meter" in unit or "meter" in unit:
-        the_unit = "cubic meter"
-        weight = 1e6
         volume = True
     elif "ml" in unit or "milli" in unit:
         the_unit = "milliliter"
@@ -54,10 +50,15 @@ def convert(num, unit, ingred):
         the_unit = "liter"
         weight = 1000
         volume = True
-    elif "pinch" in unit or "bit" or "drop" or "dash" in unit: # extraneous cases
+    elif "pinch" in unit or "bit" or "dash" in unit: # extraneous cases
         # Vocab words that we'll estimate to half a teaspoon
         the_unit = "teaspoon"
         num = 0.5
+        weight = 4.92892
+        volume = True
+    elif "drop" in unit:
+        the_unit = "teaspoon"
+        num = 0.2
         weight = 4.92892
         volume = True
       
