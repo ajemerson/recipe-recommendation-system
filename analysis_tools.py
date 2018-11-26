@@ -6,6 +6,8 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from matplotlib.patches import Ellipse
 from sklearn.mixture import GaussianMixture
+from sklearn import preprocessing
+from sklearn.feature_selection import VarianceThreshold
 
 
 def draw_ellipse(position, covariance, ax=None, **kwargs):
@@ -24,36 +26,36 @@ def draw_ellipse(position, covariance, ax=None, **kwargs):
         ax.add_patch(Ellipse(position, nsig*width, nsig*height, angle, **kwargs))
 
 
-def plot_gmm(gmm, X, label=True, ax=None):
+def plot_gmm(gmm, x, label=True, ax=None):
     """
     Ex:
     gmm = GaussianMixture(n_components=3).fit(X)
     plot_gmm(gmm, X)
     """
     ax = ax or plt.gca()
-    labels = gmm.fit(X).predict(X)
+    labels = gmm.fit(x).predict(x)
     if label:
-        ax.scatter(X[0], X[1], c=labels, s=40, cmap='viridis', zorder =2)
+        ax.scatter(x[0], x[1], c=labels, s=40, cmap='viridis', zorder =2)
     else:
-        ax.scatter(X[0], X[1], s=40, zorder=2)
+        ax.scatter(x[0], x[1], s=40, zorder=2)
     ax.axis('equal')
     w_factor = 0.2/gmm.weights_.max()
     for pos, covar, w in zip(gmm.means_, gmm.covariances_, gmm.weights_):
         draw_ellipse(pos, covar, alpha=w*w_factor)
 
 
-def get_pca_components(X, num_components=2):
+def get_pca_components(x, num_components=2):
     """
     Converts input data into its reduced PCA components. Can be used to visualize in 2D.
-    :param X: n-dimensional input data to be reduced to d-dimensional
+    :param x: n-dimensional input data to be reduced to d-dimensional
     :param num_components: default=2, d-dimensions
     :return: Dataframe of the resulting components.
     """
-    X_standardized = StandardScaler().fit_transform(X)
+    x_standardized = StandardScaler().fit_transform(x)
     pca = PCA(n_components=num_components)
-    X_pca = pca.fit_transform(X_standardized)
-    X_pca = pd.DataFrame(X_pca)
-    return X_pca
+    x_pca = pca.fit_transform(x_standardized)
+    x_pca = pd.DataFrame(x_pca)
+    return x_pca
 
 
 def get_cluster_assignments(X, num_clusters):
@@ -66,3 +68,30 @@ def get_cluster_assignments(X, num_clusters):
     km = KMeans(n_clusters=num_clusters).fit(X)
     return km.labels_
 
+
+def scale(df, scale_type="standardize"):
+    """
+    :param df: contains only the columns of numerical data, non identifier data
+    :param scale_type: (default) 'standardize' = standard scaler (i.e., subtract by mean, divide by std deviation OR
+            'normalize' = min max scaler (i.e., on a scale from 0 to 1)
+    :return: standardized columns as a dataframe
+    """
+    scaler = None
+    if scale_type == "normalize":
+        scaler = preprocessing.MinMaxScaler()
+    elif scale_type == "standardize":
+        scaler = preprocessing.StandardScaler()
+    scaler.fit_transform(df)
+    return scaler.transform(df)
+
+
+def variance_threshold_fs(x, threshold=0.0):
+    """
+    Removes all features below certain variance level (default is 0 variance)
+    :param x: all numerical data features
+    :param threshold: variance level
+    :return: remaining features after removing those under threshold
+    """
+    fs = VarianceThreshold(threshold=threshold)
+    fs.fit(x)
+    return fs.transform(x)
