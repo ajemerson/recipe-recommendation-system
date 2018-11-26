@@ -34,10 +34,12 @@ class choice_gui:
         # In the future, trigger next sampling of recipes and create new gui
         self.master.quit()
 
-root = Tk()
 
-# An example list of recipes
-# Eventually, sample list of recipes
-rlist = ["Rec1", "Rec2", "Rec3"]
-my_gui = choice_gui(root, rlist)
-root.mainloop()
+if __name__ == "__main__":
+    root = Tk()
+
+    # An example list of recipes
+    # Eventually, sample list of recipes
+    rlist = ["Rec1", "Rec2", "Rec3"]
+    my_gui = choice_gui(root, rlist)
+    root.mainloop()

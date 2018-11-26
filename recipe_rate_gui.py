@@ -1,4 +1,7 @@
 from tkinter import *
+import pandas as pd
+import analysis_tools as at
+
 
 class RateGui:
     choices = {}
@@ -68,7 +71,10 @@ class RateGui:
         self.master.quit()
 
 
-root = Tk()
-rlist = ["Rec1", "Rec2", "Rec3", "Rec4", "Rec5"]
-my_gui = RateGui(root, rlist)
-root.mainloop()
+if __name__ == "__main__":
+    recipe_data = pd.read_csv('cleaned_recipe_data.csv')
+    root = Tk()
+    # rlist = ["Rec1", "Rec2", "Rec3", "Rec4", "Rec5"]
+    rlist = recipe_data.sample(10).name.values
+    my_gui = RateGui(root, rlist)
+    root.mainloop()
