@@ -276,6 +276,7 @@ def additional_columns():
             print(i)
     append_dataframes(path, subdf)
 
+
 def append_dataframes(path, subdf):
     add_cols = subdf  # dataframe with name, type, and subtype
     og_frame = pd.read_csv(path + 'parsed_data.csv')
