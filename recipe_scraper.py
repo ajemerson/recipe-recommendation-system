@@ -107,14 +107,16 @@ def generate_dataset(type, subtype, url):
                         continue
                 recipe_soup = BeautifulSoup(recipe_request.content, 'lxml')
                 ingredients_space = recipe_soup.find('div', attrs={'id': 'polaris-app'})
-                ingredients_soup = ingredients_space.find_all('label', attrs={'ng-class': '{true: \'checkList__item\'}[true]'})
-
-                for ingredient in range(len(ingredients_soup)):
-                    ingredients.append(ingredients_soup[ingredient]['title'])
-
-                j = j + 1
-                final.loc[len(final)] = [type, subtype, recipe_title, ingredients]
-
+                try:
+                    ingredients_soup = ingredients_space.find_all('label', attrs={'ng-class': '{true: \'checkList__item\'}[true]'})
+    
+                    for ingredient in range(len(ingredients_soup)):
+                        ingredients.append(ingredients_soup[ingredient]['title'])
+    
+                    j = j + 1
+                    final.loc[len(final)] = [type, subtype, recipe_title, ingredients]
+                except:
+                    print("find_all None error thing. Ignore this page")
         return final
 
 
