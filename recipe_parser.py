@@ -202,7 +202,7 @@ def temp():
 
 
     import csv
-    path = "/Users/nathanpool/Desktop/Recipe-Recommendation-System/"
+    path = "/Users/nathanpool/Desktop/Recipe-Recommendation-System/Data/"
     data = pd.read_csv(path + 'recipe_data.csv')
     import ast
     ingz = []
@@ -256,7 +256,7 @@ def temp():
 
 
 def additional_columns():
-    path = '/Users/nathanpool/Desktop/Recipe-Recommendation-System/'
+    path = '/Users/nathanpool/Desktop/Recipe-Recommendation-System/Data/'
     data = pd.read_csv(path + 'recipe_data.csv')
     length = len(data)
     subdf = pd.DataFrame(columns=["name", "type", "subtype"])
