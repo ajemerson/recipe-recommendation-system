@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, IncrementalPCA
 from sklearn.preprocessing import StandardScaler
 from matplotlib.patches import Ellipse
 from sklearn.mixture import GaussianMixture
@@ -35,7 +35,7 @@ def plot_gmm(gmm, x, label=True, ax=None):
     ax = ax or plt.gca()
     labels = gmm.fit(x).predict(x)
     if label:
-        ax.scatter(x[0], x[1], c=labels, s=40, cmap='viridis', zorder =2)
+        ax.scatter(x[0], x[1], c=labels, s=40, cmap='viridis', zorder=2)
     else:
         ax.scatter(x[0], x[1], s=40, zorder=2)
     ax.axis('equal')
@@ -44,28 +44,34 @@ def plot_gmm(gmm, x, label=True, ax=None):
         draw_ellipse(pos, covar, alpha=w*w_factor)
 
 
-def get_pca_components(x, num_components=2):
+def get_pca_components(x, num_components=2, incremental=False, batch_size=100):
     """
     Converts input data into its reduced PCA components. Can be used to visualize in 2D.
+    Set incremental to true if memory is an issue (i.e., large dataset)
     :param x: n-dimensional input data to be reduced to d-dimensional
     :param num_components: default=2, d-dimensions
+    :param incremental: true for large datasets, memory issues
+    :param batch_size: refers to the number of rows processed per iteration
     :return: Dataframe of the resulting components.
     """
     x_standardized = StandardScaler().fit_transform(x)
-    pca = PCA(n_components=num_components)
+    if incremental:
+        pca = IncrementalPCA(n_components=num_components, batch_size=batch_size)
+    else:
+        pca = PCA(n_components=num_components)
     x_pca = pca.fit_transform(x_standardized)
-    x_pca = pd.DataFrame(x_pca)
+    x_pca = pd.DataFrame(data=x_pca)
     return x_pca
 
 
-def get_cluster_assignments(X, num_clusters):
+def get_cluster_assignments(x, num_clusters):
     """
     Quick way to retrieve cluster labels directly using k_means, passing value k
-    :param X: type dataframe
+    :param x: type dataframe
     :param num_clusters: can be based on the visualization of first 2 principal components
     :return: labels/cluster assignments
     """
-    km = KMeans(n_clusters=num_clusters).fit(X)
+    km = KMeans(n_clusters=num_clusters).fit(x)
     return km.labels_
 
 
@@ -94,4 +100,4 @@ def variance_threshold_fs(x, threshold=0.0):
     """
     fs = VarianceThreshold(threshold=threshold)
     fs.fit(x)
-    return fs.transform(x)
+    return x[x.columns[fs.get_support(indices=True)]]
