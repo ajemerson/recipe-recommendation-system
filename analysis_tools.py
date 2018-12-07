@@ -7,7 +7,8 @@ from sklearn.preprocessing import StandardScaler
 from matplotlib.patches import Ellipse
 from sklearn.mixture import GaussianMixture
 from sklearn import preprocessing
-from sklearn.feature_selection import VarianceThreshold
+from sklearn.feature_selection import VarianceThreshold, SelectFromModel
+from sklearn.ensemble import ExtraTreesClassifier
 
 
 def draw_ellipse(position, covariance, ax=None, **kwargs):
@@ -101,3 +102,21 @@ def variance_threshold_fs(x, threshold=0.0):
     fs = VarianceThreshold(threshold=threshold)
     fs.fit(x)
     return x[x.columns[fs.get_support(indices=True)]]
+
+
+def extra_trees_fs(x, y, n_estimators=50):
+    """
+    Ensemble tree-based method to choose most useful features (feature importance)
+    evaluated by predicting a given label
+    :param x: all numerical data features
+    :param y: label wished to predict (will be encoded)
+    :param n_estimators: number of ensemble trees to use
+    :return: remaining features after removing irrelevant features (using SelectFromModel)
+    """
+    le = preprocessing.LabelEncoder()
+    le.fit(y)
+    labels = le.transform(y)
+    clf = ExtraTreesClassifier(n_estimators=n_estimators)
+    clf = clf.fit(x, labels)
+    model = SelectFromModel(clf, prefit=True)
+    return x[x.columns[model.get_support(indices=True)]]
