@@ -7,7 +7,6 @@ delinquents = [8726, 8727, 13586, 13587, 22594, 22595, 26395, 26396, 19016, 1901
                36686, 57900, 57944, 57945, 57946]
 
 def temp():
-
     lemma = nltk.wordnet.WordNetLemmatizer()
 
     unit_corpus = list(set(['oz', 'ounces', 'ounce', 'gram', 'grams', 'ml', 'l', 'pound', 'lb',
