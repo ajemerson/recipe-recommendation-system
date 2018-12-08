@@ -9,6 +9,7 @@ We scraped a total of **61,900** recipes, and parsed the set of ingredients to p
 - **recipe_info.csv**: the recipe 'name', 'type' (e.g., Breakfast and Brunch), and 'subtype' (e.g., Pancake Recipes)
 - **recipes_normalized_varFS.csv**: the set of ingredients, normalized, for all recipes. There are a total of 7,580 features in this processed set after performing Variance Threshold feature selection, using the mean normalized variance for all features.
 - **recipes_normalized_varFS_incrementalPCA100.csv**: set of ingredients transformed to a size of (61900, 100) by using incremental PCA in batches of 100.
+- **recipes_normalized_varFS_incrementalPCA1000.csv**: set of ingredients transformed to a size of (61900, 1000) by using incremental PCA in batches of 1000.
 - **recipes_normalized_varFS_extraTrees912.csv**: set of ingredients chosen by ensemble classifier (classifying subtype) with a size of (61900, 912)
 - **recipes_normalized_varFS_extraTrees186.csv**: set of ingredients chosen again (from previously derived set) by an identical ensemble classifier, with a size of (61900, 186)
 - **recipes_encoded100.csv**: recipe dimensions were reduced from 7000+ to 100 using a stacked autoencoder of hidden layers 1000 and 100. Input Set: recipes_normalized_varFS.csv. Output Size: (61900, 100)
