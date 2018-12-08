@@ -106,13 +106,13 @@ def convert(num, unit, ingred):
     # Convert the unit
     output = round(weight * num, 3)
     if volume:
-        print('Converted', the_unit, 'to milliliters')
+        # print('Converted', the_unit, 'to milliliters')
         mass = 0
         volume = output
         cols = [ingred + '_mass', ingred + '_volume']
         measurements = [mass, volume]
     elif mass:
-        print('Converted', the_unit, 'to grams')
+        # print('Converted', the_unit, 'to grams')
         mass = output
         volume = 0
         cols = [ingred + '_mass', ingred + '_volume']
@@ -120,7 +120,7 @@ def convert(num, unit, ingred):
     elif quantity:
         cols = [unit]
         measurements = [output]
-        print('Ingredient expressed as quantity')
+        # print('Ingredient expressed as quantity')
     # print(output)
     return measurements, cols, quantity
 
@@ -145,11 +145,10 @@ indices = [random.randint(0, len(units) - 1) for i in range(tests)]
 def test():
     df = pd.DataFrame(columns=["Volume", "Mass"])
     for i in range(tests):
-        print("INPUT     Num:", nums[i], ', Indices:', units[indices[i]])
+        # print("INPUT     Num:", nums[i], ', Indices:', units[indices[i]])
         convert(nums[i], units[indices[i]], df=df, i=i)
-        print()
+        # print()
 
 
 def print_df():
     pd.options.display.float_format = '{:,.3f}'.format
-

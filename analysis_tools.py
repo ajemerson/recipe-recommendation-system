@@ -9,6 +9,9 @@ from sklearn.mixture import GaussianMixture
 from sklearn import preprocessing
 from sklearn.feature_selection import VarianceThreshold, SelectFromModel
 from sklearn.ensemble import ExtraTreesClassifier
+from keras.layers import Input, Dense
+from keras.models import Model
+from keras import losses
 
 
 def draw_ellipse(position, covariance, ax=None, **kwargs):
@@ -120,3 +123,44 @@ def extra_trees_fs(x, y, n_estimators=50):
     clf = clf.fit(x, labels)
     model = SelectFromModel(clf, prefit=True)
     return x[x.columns[model.get_support(indices=True)]]
+
+
+def autoencoder(data, dim_enc1, dim_enc2):
+    """
+    Trains a stacked autoencoder with two hidden layers. Reduces data
+    to the size dim_enc2 and saves the reduced dataset to a csv
+    :param data: a pandas dataframe 
+    :param dim_enc1: dimension of first hidden layer of autoencoder. First dimensionality reduction
+    :param dim_enc2: dimension of last hidden layer of autoencoder. Last dimensionality reduction and output data size
+    :return: reduced, encoded dataset
+    """
+    in_size = data.shape[1]
+    print('Number of attributes in dataset:', in_size)
+
+    # placeholder for input vector
+    input_vect = Input(shape=(in_size, ))
+    # placeholder for encoding
+    encoded = Dense(dim_enc1, activation='relu')(input_vect)
+    encoded = Dense(dim_enc2, activation='relu')(encoded)
+    # placeholder for decoding
+    decoded = Dense(dim_enc1, activation='relu')(encoded)
+    decoded = Dense(in_size, activation='sigmoid')(decoded)
+
+    # full autoencoder placeholder
+    auto_model = Model(input_vect, decoded)
+    # encoder portion of autoencoder
+    encoder = Model(input_vect, encoded)
+
+    # the reconstructed representation at the end of the autoencoder
+
+    auto_model.compile(optimizer='adadelta', loss=losses.mean_squared_error)
+
+    # Training
+    auto_model.fit(data, data, epochs=10, batch_size=256, shuffle=True)
+    # Extract encoded data
+    enc_data = pd.DataFrame(encoder.predict(data))
+
+    print('Saving encoded data...')
+    enc_data.to_csv('recipes_encoded100.csv')
+    print('Encoded data was successfully saved to a csv')
+    return(enc_data)

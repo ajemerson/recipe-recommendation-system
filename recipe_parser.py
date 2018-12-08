@@ -3,6 +3,9 @@ import pandas as pd
 import unit_conversion as uc
 import numpy as np
 
+delinquents = [8726, 8727, 13586, 13587, 22594, 22595, 26395, 26396, 19016, 19017, 23876, 23877, 32884, 32885, 36685,
+               36686, 57900, 57944, 57945, 57946]
+
 def temp():
 
     lemma = nltk.wordnet.WordNetLemmatizer()
@@ -201,9 +204,8 @@ def temp():
         return dictionary
 
 
-    import csv
     path = "/Users/nathanpool/Desktop/Recipe-Recommendation-System/Data/"
-    data = pd.read_csv(path + 'recipe_data.csv')
+    data = pd.read_csv(path + 'preparsed_data.csv')
     import ast
     ingz = []
     for i in range(len(data)):
@@ -214,7 +216,7 @@ def temp():
     d = {}
     c_list = []
     for i in range(0, size):  # read one row from csv file at a time
-        if i != 8726 and i != 8727 and i != 13586 and i != 13587 and i != 22594 and i != 22595 and i != 26395 and i != 26396:
+        if i not in delinquents:
             rec = ingz[i]
             # print('Recipe:', rec)
             # print(ing)
@@ -226,8 +228,11 @@ def temp():
             # c_list = list(set(c_list))
             # print('Size of column list:', len(c_list))
             # print('\n')
-            if i % 100 == 0:
-                print(i, '\n')
+            if i < max(delinquents):  # debugging
+                if i % 100 == 0:
+                    print(i)
+            else:
+                print(i)
         else:
             cols = list(d.keys())
             for j in cols:
@@ -250,19 +255,32 @@ def temp():
 
     df = pd.DataFrame(data=np.array(list(d.values())).T, columns=np.array(list(d.keys())))
 
-    df.to_csv(path + 'parsed_data.csv')
+    print("Appending additional columns.....")
+    additional_columns(data, df)
 
-    print('YEET')
+    # Split the data frame so that we guarantee enough space
+    # df1, df2, df3, df4, df5 = np.array_split(df, 5)
+    #
+    # df1.to_csv('/Users/nathanpool/Desktop/parsed_data1.csv')
+    # df2.to_csv('/Users/nathanpool/Desktop/parsed_data2.csv')
+    # df3.to_csv('/Users/nathanpool/Desktop/parsed_data3.csv')
+    # df4.to_csv('/Users/nathanpool/Desktop/parsed_data4.csv')
+    # df5.to_csv('/Users/nathanpool/Desktop/parsed_data5.csv')
+
+    print('YEET. YOU DONE, DOG.')
 
 
-def additional_columns():
-    path = '/Users/nathanpool/Desktop/Recipe-Recommendation-System/Data/'
-    data = pd.read_csv(path + 'recipe_data.csv')
+def additional_columns(data, df):
+    path = '/Users/nathanpool/Desktop/'
+    # print('Reading csv...', path, 'preparsed_data', str(j), '.csv')
+    # data = pd.read_csv(path + 'preparsed_data' + str(j) + '.csv')
+    # print('csv was saved to dataframe.')
     length = len(data)
     subdf = pd.DataFrame(columns=["name", "type", "subtype"])
+    print('Gathering names, types, etc. into a subdataframe...')
     for i in range(length):
         # Ignore the delinquent columns
-        if i != 8726 and i != 8727 and i != 13586 and i != 13587 and i != 22594 and i != 22595 and i != 26395 and i != 26396:
+        if i not in delinquents:
             name = data.iloc[i, 3]
             type = data.iloc[i, 1]
             subtype = data.iloc[i, 2]
@@ -272,32 +290,41 @@ def additional_columns():
             type = "Delete"
             subtype = "Delete"
             subdf.loc[i] = [name, type, subtype]
-        if i % 100 == 0:
+        if i < max(delinquents):  # debugging
+            if i % 100 == 0:
+                print(i)
+        else:
             print(i)
-    append_dataframes(path, subdf)
+
+    print('Names gathered! ')
+
+    print('Appending...')
+
+    append_dataframes(path, subdf, df)
 
 
-def append_dataframes(path, subdf):
+def append_dataframes(path, subdf, og):
     add_cols = subdf  # dataframe with name, type, and subtype
-    og_frame = pd.read_csv(path + 'parsed_data.csv')
+    # og_frame = pd.read_csv(path + 'parsed_data' + str(j) + '.csv')
+    og_frame = og  # the parsed dataframe
 
     print('Concatenating...')
     result = pd.concat([add_cols, og_frame], axis=1, sort=False)
 
-    print('Removing delinquent rows...')
-    result.drop(result.index[[8726, 13586, 22594, 26395, 26396]], inplace=True)
-    result.reset_index()
+    # print('Removing delinquent rows...')
+    # result.drop(result.index[[8726, 13586, 22594, 26395, 26396]], inplace=True)
+    # result.reset_index()
 
     print("Preview of the data...")
     print(result[['name', 'type', 'subtype']].head(10))
 
     print('Saving concatenated dataframe.....')
 
-    result.to_csv(path + 'final_data')
+    result.to_csv(path + 'final_data.csv')
 
-    print('YEET.')
+    print('YEET')
 
 
 if __name__ == '__main__':
-    # temp()
-    additional_columns()
+    temp()
+    # additional_columns()  --- this is already called from temp()
