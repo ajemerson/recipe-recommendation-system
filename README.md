@@ -11,6 +11,8 @@ We scraped a total of **61,900** recipes, and parsed the set of ingredients to p
 - **recipes_normalized_varFS_incrementalPCA100.csv**: set of ingredients transformed to a size of (61900, 100) by using incremental PCA in batches of 100.
 - **recipes_normalized_varFS_extraTrees912.csv**: set of ingredients chosen by ensemble classifier (classifying subtype) with a size of (61900, 912)
 - **recipes_normalized_varFS_extraTrees186.csv**: set of ingredients chosen again (from previously derived set) by an identical ensemble classifier, with a size of (61900, 186)
+- **recipes_encoded100.csv**: recipe dimensions were reduced from 7000+ to 100 using a stacked autoencoder of hidden layers 1000 and 100. Input Set: recipes_normalized_varFS.csv. Output Size: (61900, 100)
+- **recipes_encoded1000.csv**: recipe dimensions were reduced from 7000+ to 1000 using a one-hidden-layer autoencoder. Input Set: recipes_normalized_varFS.csv. Output Size: (61900, 1000)
 # References:
 - A possible basis for our own dataset: https://www.kaggle.com/hugodarwood/epirecipes 
 - Resource for dataset (includes tags): https://www.epicurious.com/search/ 
