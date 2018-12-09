@@ -1,15 +1,15 @@
 from tkinter import *
 import pandas as pd
-import analysis_tools as at
+# import analysis_tools as at
 
 
 class RateGui:
     choices = {}
     vars = {}
 
-    def __init__(self, master, recipe_list):
+    def __init__(self, master, recipe_list, counter):
         self.master = master
-        self.label = Label(master, text="Rate each recipe")
+        self.label = Label(master, text="Of the following, what are you in the mood for?")
         self.label.grid()
         self.frm = Frame(root, bd=16, relief='sunken')
         self.frm.grid()
@@ -18,6 +18,7 @@ class RateGui:
         self.rate_gui(self.frm, self.recipe_list)
         self.close_button = Button(master, text="Done", command=self.save_choice)
         self.close_button.grid()
+        self.counter = counter
 
     def rate_gui(self, frm, recipe_list):
 
@@ -57,24 +58,28 @@ class RateGui:
             five = Radiobutton(frm, text='5', variable=self.vars["5" + str(i)])
             five.config(indicatoron=0, bd=4, width=5, value='5')
             five.grid(row=label_place+1, column=5)
-            label_place+=2
+            label_place += 2
 
     def save_choice(self):
         num = len(self.recipe_list)
         for i in range(num):
-            for j in range(6): # for each button
+            for j in range(6):  # for each button
                 if self.vars[str(j) + str(i)].get():
                     self.choices[self.recipe_list[i]] = int(self.vars[str(j) + str(i)].get())
         # Prints the choices --- the recipes checked by the user
-        print(self.choices)
+        keys = list(self.choices.keys())[4*self.counter:]
+        subdict = {x: self.choices[x] for x in keys if x in self.choices}
+        print(subdict)
         # In the future, trigger next sampling of recipes and create new gui
         self.master.quit()
 
 
 if __name__ == "__main__":
-    recipe_data = pd.read_csv('cleaned_recipe_data.csv')
-    root = Tk()
-    # rlist = ["Rec1", "Rec2", "Rec3", "Rec4", "Rec5"]
-    rlist = recipe_data.sample(10).name.values
-    my_gui = RateGui(root, rlist)
-    root.mainloop()
+    path = '../Datasets/'
+    recipe_data = pd.read_csv(path + 'recipe_info.csv')
+    for i in range(4):
+        root = Tk()
+        rlist = recipe_data.sample(10).name.values
+        my_gui = RateGui(root, rlist, i)
+        root.mainloop()
+        root.destroy()

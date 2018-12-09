@@ -12,7 +12,6 @@ from sklearn.ensemble import ExtraTreesClassifier
 from keras.layers import Input, Dense
 from keras.models import Model
 from keras import losses
-from sklearn.metrics import silhouette_score as silhouette
 from sklearn.cluster import DBSCAN as dbizzle
 
 
@@ -190,23 +189,7 @@ def dbscan(data, eps, min_samps):
         if clusters[i] == -1:
             noise_count += 1
     print("Number of noise points:", noise_count)
-    silhouette_coef(data, clustering)
 
     # append the clustering to the end of the input dataframe
     data['clusters'] = clusters
     return data
-
-
-def silhouette_coef(d, clustering):
-    """
-    Measure the performance of any clustering with Silhouette coefficient. Outputs a coefficient in [-1, 1]
-    We prefer coefficients close to 1
-    :param d: the pandas dataframe before appending cluster labels
-    :param clustering: the clustering of the data
-    :return coef: the Silhouette Coefficient
-    """
-    print("Calculating Silhouette Coefficient...")
-    labels = clustering.labels_
-    coef = silhouette(d, labels)
-    print('Silhouette Coefficient of clustering:', coef)
-    return coef

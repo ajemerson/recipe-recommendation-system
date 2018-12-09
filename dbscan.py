@@ -26,7 +26,7 @@ def dbscan(data, eps, min_samps):
         if clusters[i] == -1:
             noise_count += 1
     print("Number of noise points:", noise_count)
-    silhouette_coef(data, clustering)
+    # silhouette_coef(data, clustering)
 
     # append the clustering to the end of the input dataframe
     data['clusters'] = clusters
@@ -52,7 +52,11 @@ if __name__ == "__main__":
     path = "../Datasets/"
     print('Reading data...')
     df100 = pd.read_csv(path + 'recipes_encoded100.csv')
+    df100 = df100.iloc[:, 1:]
     df1000 = pd.read_csv(path + 'recipes_encoded1000.csv')
+    df1000 = df1000.iloc[:, 1:]
     recipe_info = pd.read_csv(path + 'recipe_info.csv')
     print('Data reading complete.')
-    data = dbscan(df100, 25.0006, 50)
+    data = dbscan(df100, 0.6, 25)
+    print('Saving data...')
+    data.iloc[:, -1].to_csv(path + 'dbclusters_min25.csv')
