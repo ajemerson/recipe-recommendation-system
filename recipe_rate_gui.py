@@ -1,7 +1,6 @@
 from tkinter import *
 import pandas as pd
-import numpy as np
-from sklearn.preprocessing import normalize
+import analysis_tools as tools
 
 global subdict
 
@@ -71,134 +70,24 @@ class RateGui:
             for j in range(5):  # for each button
                 if self.vars[str(j+1) + str(i)].get():
                     self.choices[self.recipe_list[i]] = int(self.vars[str(j+1) + str(i)].get())
-        # Prints the choices --- the recipes checked by the user
         keys = list(self.choices.keys())[10*self.counter:]  # subsets dictionary to yield only the current recipes
         subdict = {x: self.choices[x] for x in keys if x in self.choices}
         self.master.quit()
-
-
-def cluster_sampling(data, c_type, w=[], c={}):
-    """
-    Based on the clustering type that is input, a uniform distribution among
-    the clustering is returned.
-    :param c_type: an integer representing the clustering type. For simplicity,
-        0: 'e100_gmm54'
-        1: 'e100_gmm25'
-        2: 't186_gmm4'
-    :return c: a list of 10 cluster numbers based on the choice of a uniform distribution
-    :return clusters: a dictionary of clusters where each key is the cluster number and each value is a dataframe
-        containing all datapoints from only that cluster
-    """
-    choices = ['e100_gmm54', 'e100_gmm25', 't186_gmm4']
-    # retrieve the corresponding column of the dataset
-    col = data[choices[c_type]]
-    num_clusters = np.max(col)
-    if len(w) == 0:
-        weights = []
-        # calculate the weights and separate the clusters
-        for j in range(num_clusters + 1):
-            weights.append(1 / (num_clusters + 1))
-    else:
-        weights = w
-    if len(c) == 0:
-        clusters = {}
-        for j in range(num_clusters + 1):
-            # keys correspond to cluster number, values correspond to dataframe with only observations of that cluster
-            clusters[str(j)] = data.loc[data[choices[c_type]] == j]
-    else:
-        clusters = c
-
-    # Now we can sample a cluster number based on the initial weights
-    print("Keys:", list(clusters.keys()))
-    print("Weights:", weights)
-    sampled_clusters = np.random.choice(list(clusters.keys()), 10, p=weights)
-    print("Clusters to sample from:", sampled_clusters)
-    return weights, sampled_clusters, clusters
-
-
-def sample_from_cluster(choices, clusters):
-    """
-    Performs random sampling for each given cluster
-    :param choices: the cluster numbers (chosen by a weighted sampling) on which to perform a random sampling
-    :param clusters: a dictionary where each key is the cluster number and each value is a dataframe with
-        observations from only that cluster
-    :return: len(choices) number of observations
-    """
-    size = len(choices)
-    rlist = []
-    for i in range(size):
-        sample = clusters[str(choices[i])].sample(1)
-        recipe = sample.name.values
-        # make sure that there aren't any repeats in that sample
-        if recipe[0] not in rlist:
-            rlist.append(recipe[0])
-            print(recipe[0], ':', choices[i])
-        else:
-            i -= 1
-    return rlist
-
-
-def reweight(w, rate_dict, choices, clusters):
-    """
-    Helps the system converge to a preference by the user
-    :param w: the vector of weights corresponding to each cluster
-    :param rate_dict: a dictionary with 10 recipes as keys and 10 ratings as values
-    :param choices: a list of 10 values each corresponding to a cluster. Recipe i is from the cluster corresponding to
-        the ith index of this list
-    :param clusters: a dictionary where each key is the cluster number and each value is the dataframe of only that
-        cluster's observations
-    :return: a new vector of weights based upon the ratings given by the user
-    """
-    ratings = np.array(list(rate_dict.values()))
-    print("Ratings:", ratings)
-    print("Clusters corresponding to recipe:", choices)
-    choices = np.array([int(i) for i in choices])  # convert entries to integers
-    tot_clusts = len(clusters)
-    print('Total Number of Clusters:', tot_clusts)
-    divs = np.zeros(tot_clusts)  # dividends used to average scores of clusters that have more than one recipe present
-    tot_scores = np.zeros(tot_clusts)  # the total scores before averaging
-    for i in range(tot_clusts):
-        divs[i] = np.sum(choices == i)  # allows us to average the ratings corresponding to the recipes' clusters
-        indices = choices == i  # a 1 will be at the index where the recipe belongs to the ith cluster
-        tot_scores[i] = np.dot(indices, ratings)
-    # Perform an element-wise division
-    avg_scores = np.divide(tot_scores, divs, out=np.zeros_like(tot_scores), where=divs!=0)
-    print("Dividends:", divs)
-    print("Total Scores:", tot_scores)
-    print("Average Scores:", avg_scores)
-
-    # This will need to be re-normalized
-    new_w = avg_scores * w  # element-wise product of average_scores and the old weight vector will give us the new w
-
-    # Establish a vector based on presence of clusters in the recipe sample
-    presence = np.zeros(tot_clusts)
-    for i in range(tot_clusts):
-        if i in choices:
-            presence[i] = 1
-
-    new_w *= presence  # insures that clusters that are not present will not be re-weighted
-    norm_to = np.dot(w, presence)  # normalize only with respect to the present clusters' weights
-    print("Clusters Present:", presence)
-    new_w = (new_w / np.sum(new_w)) * norm_to
-    new_w += w * (presence == 0)  # add back in the old weights of absent clusters (these are unaffected)
-
-    print(new_w)
-    print(np.sum(new_w))
-
-    return new_w
 
 
 if __name__ == "__main__":
     recipe_data = pd.read_csv('Data/recipe_info.csv').iloc[:, 1:]
     w = []
     c = {}
-    for gui_iteration in range(6):
+    for gui_iteration in range(1):
         # obtain the weights of sampling from each cluster based on the clustering we want to use
-        w, choices, clusters = cluster_sampling(recipe_data, 0, w, c)
-        rlist = sample_from_cluster(choices, clusters)
+        w, choices, clusters = tools.cluster_sampling(recipe_data, 0, w, c)
+        rlist, index_list = tools.sample_from_cluster(choices, clusters)
         root = Tk()
         my_gui = RateGui(root, rlist, gui_iteration)
         root.mainloop()
         root.destroy()
-        w = reweight(w, subdict, choices, clusters)
+        w = tools.reweight(w, subdict, choices, clusters)
 
+    # find the info on the highest rated recipe in the last iteration through the GUI
+    cluster, index = tools.find_info(subdict, index_list, 0, recipe_data, clusters)

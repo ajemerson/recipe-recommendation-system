@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
+import matplotlib
+matplotlib.use('tkagg')
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA, IncrementalPCA
 from sklearn.preprocessing import StandardScaler
@@ -195,13 +197,157 @@ def dbscan(data, eps, min_samps):
     return data
 
 
-def init_weights(c_type):
+def cluster_sampling(data, c_type, w=[], c={}):
     """
     Based on the clustering type that is input, a uniform distribution among
     the clustering is returned.
     :param c_type: an integer representing the clustering type. For simplicity,
-        0: 'e100_54'
-        1: 'e100_25'
-        2: 't186_4'
-    :return: a uniform probability distribution among all clusters
+        0: 'e100_gmm54'
+        1: 'e100_gmm25'
+        2: 't186_gmm4'
+    :return c: a list of 10 cluster numbers based on the choice of a uniform distribution
+    :return clusters: a dictionary of clusters where each key is the cluster number and each value is a dataframe
+        containing all datapoints from only that cluster
     """
+    choices = ['e100_gmm54', 'e100_gmm25', 't186_gmm4']
+    # retrieve the corresponding column of the dataset
+    col = data[choices[c_type]]
+    num_clusters = np.max(col)
+    if len(w) == 0:
+        weights = []
+        # calculate the weights and separate the clusters
+        for j in range(num_clusters + 1):
+            weights.append(1 / (num_clusters + 1))
+    else:
+        weights = w
+    if len(c) == 0:
+        clusters = {}
+        for j in range(num_clusters + 1):
+            # keys correspond to cluster number, values correspond to dataframe with only observations of that cluster
+            clusters[str(j)] = data.loc[data[choices[c_type]] == j]
+    else:
+        clusters = c
+
+    # Now we can sample a cluster number based on the initial weights
+    print("Keys:", list(clusters.keys()))
+    print("Weights:", weights)
+    sampled_clusters = np.random.choice(list(clusters.keys()), 10, p=weights)
+    print("Clusters to sample from:", sampled_clusters)
+    return weights, sampled_clusters, clusters
+
+
+def sample_from_cluster(choices, clusters):
+    """
+    Performs random sampling for each given cluster
+    :param choices: the cluster numbers (chosen by a weighted sampling) on which to perform a random sampling
+    :param clusters: a dictionary where each key is the cluster number and each value is a dataframe with
+        observations from only that cluster
+    :return: len(choices) number of observations
+    """
+    size = len(choices)
+    rlist = []
+    index_list = []
+    for i in range(size):
+        cluster = clusters[str(choices[i])]  # the dataframe of that cluster only
+        sample = cluster.sample(1)
+        recipe = sample.name.values
+        index = cluster.loc[cluster['name'] == recipe[0]].index[0]
+        # make sure that there aren't any repeats in that sample
+        if recipe[0] not in rlist:
+            rlist.append(recipe[0])
+            index_list.append(index)
+            print(recipe[0], ':', choices[i])
+        else:
+            i -= 1
+    return rlist, index_list
+
+
+def reweight(w, rate_dict, choices, clusters):
+    """
+    Helps the system converge to a preference by the user
+    :param w: the vector of weights corresponding to each cluster
+    :param rate_dict: a dictionary with 10 recipes as keys and 10 ratings as values
+    :param choices: a list of 10 values each corresponding to a cluster. Recipe i is from the cluster corresponding to
+        the ith index of this list
+    :param clusters: a dictionary where each key is the cluster number and each value is the dataframe of only that
+        cluster's observations
+    :return: a new vector of weights based upon the ratings given by the user
+    """
+    ratings = np.array(list(rate_dict.values()))
+    print("Ratings:", ratings)
+    print("Clusters corresponding to recipe:", choices)
+    choices = np.array([int(i) for i in choices])  # convert entries to integers
+    tot_clusts = len(clusters)
+    print('Total Number of Clusters:', tot_clusts)
+    divs = np.zeros(tot_clusts)  # dividends used to average scores of clusters that have more than one recipe present
+    tot_scores = np.zeros(tot_clusts)  # the total scores before averaging
+    for i in range(tot_clusts):
+        divs[i] = np.sum(choices == i)  # allows us to average the ratings corresponding to the recipes' clusters
+        indices = choices == i  # a 1 will be at the index where the recipe belongs to the ith cluster
+        tot_scores[i] = np.dot(indices, ratings)
+    # Perform an element-wise division
+    avg_scores = np.divide(tot_scores, divs, out=np.zeros_like(tot_scores), where=divs!=0)
+    print("Dividends:", divs)
+    print("Total Scores:", tot_scores)
+    print("Average Scores:", avg_scores)
+
+    # This will need to be re-normalized
+    new_w = avg_scores * w  # element-wise product of average_scores and the old weight vector will give us the new w
+
+    # Establish a vector based on presence of clusters in the recipe sample
+    presence = np.zeros(tot_clusts)
+    for i in range(tot_clusts):
+        if i in choices:
+            presence[i] = 1
+
+    new_w *= presence  # insures that clusters that are not present will not be re-weighted
+    norm_to = np.dot(w, presence)  # normalize only with respect to the present clusters' weights
+    print("Clusters Present:", presence)
+    new_w = (new_w / np.sum(new_w)) * norm_to
+    new_w += w * (presence == 0)  # add back in the old weights of absent clusters (these are unaffected)
+
+    print(new_w)
+    print(np.sum(new_w))
+
+    return new_w
+
+
+def find_info(rec_rate, ind_list, clustering, recipe_info, clusters):
+    """
+    Get the info corresponding the the highest-rated recipe. Cluster number and index of recipe
+    :param rec_rate: a dictionary where each key is a recipe and each value is the rating. The final pass.
+    :param ind_list: the list of indices of each recipe in the original dataset
+    :param clustering: the clustering that is being used --- again indexed by integer for simplicity
+        0: e100_gmm54
+        1: e100_gmm25
+        2: t186_gmm4
+    :param recipe_info: the recipe_info.csv dataframe with recipe names, types, subtypes, and corresponding clusters
+    :param clusters: dictionary of subsetted clusters. Key corresponding to cluster number
+    :return: the subset of data that contains observations corresponding to only that cluster number
+    :return index: the index in the original dataset of the highest rated recipe
+    """
+    # Find the highest rated recipe
+    max_rating = 0
+    max_recipe = None
+    max_index = None
+    size = len(rec_rate)
+    ratings = list(rec_rate.values())
+    recipes = list(rec_rate.keys())
+    for i in range(size):
+        if ratings[i] > max_rating:
+            max_rating = ratings[i]
+            max_recipe = recipes[i]
+            max_index = ind_list[i]
+
+    # Now, we have the highest rated recipe and its index in the original dataset
+    # Find its corresponding cluster
+    c_list = ['e100_gmm54', 'e100_gmm25', 't186_gmm4']
+    clustering = c_list[clustering]  # convert from integer interpretation of clustering to string
+    print("Clustering being used:", clustering)
+    print('Max Index:', max_index)
+    cluster = recipe_info.loc[max_index, clustering]
+    print("The highest-rated recipe:", max_recipe)
+    print("The recipe's cluster:", cluster)
+    print("The recipe's index in the dataset:", max_index)
+
+    return clusters[str(cluster)], max_index
