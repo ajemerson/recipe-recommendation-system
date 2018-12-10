@@ -72,7 +72,7 @@ class RateGui:
                 if self.vars[str(j+1) + str(i)].get():
                     self.choices[self.recipe_list[i]] = int(self.vars[str(j+1) + str(i)].get())
         # Prints the choices --- the recipes checked by the user
-        keys = list(self.choices.keys())[4*self.counter:]
+        keys = list(self.choices.keys())[10*self.counter:]  # subsets dictionary to yield only the current recipes
         subdict = {x: self.choices[x] for x in keys if x in self.choices}
         self.master.quit()
 
@@ -198,7 +198,7 @@ if __name__ == "__main__":
         w, choices, clusters = cluster_sampling(recipe_data, 2, w, c)
         rlist = sample_from_cluster(choices, clusters)
         root = Tk()
-        my_gui = RateGui(root, rlist, 0)
+        my_gui = RateGui(root, rlist, gui_iteration)
         root.mainloop()
         root.destroy()
         w = reweight(w, subdict, choices, clusters)
