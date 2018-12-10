@@ -79,9 +79,9 @@ if __name__ == "__main__":
     recipe_data = pd.read_csv('Data/recipe_info.csv').iloc[:, 1:]
     w = []
     c = {}
-    for gui_iteration in range(1):
+    for gui_iteration in range(3):
         # obtain the weights of sampling from each cluster based on the clustering we want to use
-        w, choices, clusters = tools.cluster_sampling(recipe_data, 0, w, c)
+        w, choices, clusters = tools.cluster_sampling(recipe_data, 1, w, c)
         rlist, index_list = tools.sample_from_cluster(choices, clusters)
         root = Tk()
         my_gui = RateGui(root, rlist, gui_iteration)
@@ -90,4 +90,5 @@ if __name__ == "__main__":
         w = tools.reweight(w, subdict, choices, clusters)
 
     # find the info on the highest rated recipe in the last iteration through the GUI
-    cluster, index = tools.find_info(subdict, index_list, 0, recipe_data, clusters)
+    cluster_data, max_index = tools.find_info(subdict, index_list, 1, recipe_data, clusters)
+    print(tools.get_closest_neighbors(max_index, cluster_data))

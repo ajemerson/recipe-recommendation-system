@@ -15,6 +15,7 @@ from keras.layers import Input, Dense
 from keras.models import Model
 from keras import losses
 from sklearn.cluster import DBSCAN as dbizzle
+from sklearn.neighbors import NearestNeighbors
 
 
 def draw_ellipse(position, covariance, ax=None, **kwargs):
@@ -361,3 +362,23 @@ def find_info(rec_rate, ind_list, clustering, recipe_info, clusters):
     subset = data.iloc[row_list, :]
 
     return subset, max_index
+
+
+def get_closest_neighbors(recipe_index, recipe_cluster, n_neighbors=10):
+    """
+    Will find the closest neighbors to the given recipe as a final recommendation
+    :param recipe_index: the single highest rated recipe in the last round of ratings
+    :param recipe_cluster: all recipes belonging to the same cluster as the highest rated recipe
+    :param n_neighbors: number of closest recipes desired
+    :return: the list of unique recipes closest to the highest rated recipe
+    """
+    recipe_info = pd.read_csv("Data/recipe_data.csv")
+    knn = NearestNeighbors(n_neighbors=n_neighbors)
+    print("Fitting KNN")
+    knn.fit(recipe_cluster)
+    print("Fitting complete")
+    print("Index: ", recipe_index)
+    neighbor_indices = knn.kneighbors(recipe_cluster.loc[recipe_index].values.reshape(1, -1))[1][0]
+    recommendations = recipe_info.name[neighbor_indices].values
+    return np.unique(recommendations)
+
