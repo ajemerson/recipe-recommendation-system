@@ -1,4 +1,6 @@
 ##  [CSC722: Advanced Topics in Machine Learning Project] Recipe Recommendation System
+# Requirements:
+- **Python 3.7**: This project assumes that dictionaries have some notion of consistent ordering. By default, 3.7 makes this assumption. Otherwise, dictionaries should be changed to OrderedDict
 # Project Goal: 
 Data-driven recipe recommendation system using web-scraped recipe data (including but not limited to data like ingredients, health facts, etc.) and user’s historical preference.
 # Motivation:
