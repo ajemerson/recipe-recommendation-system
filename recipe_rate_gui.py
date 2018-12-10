@@ -160,6 +160,7 @@ def reweight(w, rate_dict, choices, clusters):
     for i in range(tot_clusts):
         divs[i] = np.sum(choices == i)  # allows us to average the ratings corresponding to the recipes' clusters
         indices = choices == i  # a 1 will be at the index where the recipe belongs to the ith cluster
+        print("Ratings: ", ratings)
         tot_scores[i] = np.dot(indices, ratings)
     # Perform an element-wise division
     avg_scores = np.divide(tot_scores, divs, out=np.zeros_like(tot_scores), where=divs!=0)
@@ -190,17 +191,15 @@ def reweight(w, rate_dict, choices, clusters):
 
 if __name__ == "__main__":
     recipe_data = pd.read_csv('Data/recipe_info.csv').iloc[:, 1:]
-    # obtain the weights of sampling from each cluster based on the clustering we want to use
-    init_w, choices, clusters = cluster_sampling(recipe_data, 2)
-    init_rlist = sample_from_cluster(choices, clusters)
-    root = Tk()
-    rlist = init_rlist
-    # rlist = recipe_data.sample(10).name.values
-    my_gui = RateGui(root, rlist, 0)  # once we figure out how to update weights based on rankings, change 0 to i because we will loop some number of times
-    root.mainloop()
-    root.destroy()
-
-    # begin the resampling
-    w = init_w
-    for i in range(2):
+    w = []
+    c = {}
+    for gui_iteration in range(3):
+        # obtain the weights of sampling from each cluster based on the clustering we want to use
+        w, choices, clusters = cluster_sampling(recipe_data, 2, w, c)
+        rlist = sample_from_cluster(choices, clusters)
+        root = Tk()
+        my_gui = RateGui(root, rlist, 0)
+        root.mainloop()
+        root.destroy()
         w = reweight(w, subdict, choices, clusters)
+
