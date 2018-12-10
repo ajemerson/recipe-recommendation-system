@@ -77,7 +77,7 @@ class RateGui:
         self.master.quit()
 
 
-def init_sampling(data, c_type):
+def cluster_sampling(data, c_type, w=[], c={}):
     """
     Based on the clustering type that is input, a uniform distribution among
     the clustering is returned.
@@ -93,21 +93,27 @@ def init_sampling(data, c_type):
     # retrieve the corresponding column of the dataset
     col = data[choices[c_type]]
     num_clusters = np.max(col)
-    weights = []
-    clusters = {}
-    # calculate the weights and separate the clusters
-    for j in range(num_clusters + 1):
-        weights.append(1 / (num_clusters + 1))
-    for j in range(num_clusters + 1):
-        # keys correspond to cluster number, values correspond to dataframe with only observations of that cluster
-        clusters[str(j)] = data.loc[data[choices[c_type]] == j]
+    if len(w) == 0:
+        weights = []
+        # calculate the weights and separate the clusters
+        for j in range(num_clusters + 1):
+            weights.append(1 / (num_clusters + 1))
+    else:
+        weights = w
+    if len(c) == 0:
+        clusters = {}
+        for j in range(num_clusters + 1):
+            # keys correspond to cluster number, values correspond to dataframe with only observations of that cluster
+            clusters[str(j)] = data.loc[data[choices[c_type]] == j]
+    else:
+        clusters = c
 
     # Now we can sample a cluster number based on the initial weights
     print("Keys:", list(clusters.keys()))
     print("Weights:", weights)
-    c = np.random.choice(list(clusters.keys()), 10, p=weights)
-    print("Clusters to sample from:", c)
-    return weights, c, clusters
+    sampled_clusters = np.random.choice(list(clusters.keys()), 10, p=weights)
+    print("Clusters to sample from:", sampled_clusters)
+    return weights, sampled_clusters, clusters
 
 
 def sample_from_cluster(choices, clusters):
@@ -185,9 +191,8 @@ def reweight(w, rate_dict, choices, clusters):
 if __name__ == "__main__":
     recipe_data = pd.read_csv('Data/recipe_info.csv').iloc[:, 1:]
     # obtain the weights of sampling from each cluster based on the clustering we want to use
-    init_w, choices, clusters = init_sampling(recipe_data, 2)
+    init_w, choices, clusters = cluster_sampling(recipe_data, 2)
     init_rlist = sample_from_cluster(choices, clusters)
-    # for i in range(3):
     root = Tk()
     rlist = init_rlist
     # rlist = recipe_data.sample(10).name.values
@@ -197,6 +202,5 @@ if __name__ == "__main__":
 
     # begin the resampling
     w = init_w
-    # print('\n', subdict)
-    for i in range(1):
+    for i in range(2):
         w = reweight(w, subdict, choices, clusters)
