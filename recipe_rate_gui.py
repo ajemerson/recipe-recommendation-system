@@ -79,7 +79,7 @@ if __name__ == "__main__":
     recipe_data = pd.read_csv('Data/recipe_info.csv').iloc[:, 1:]
     w = []
     c = {}
-    for gui_iteration in range(3):
+    for gui_iteration in range(1):
         # obtain the weights of sampling from each cluster based on the clustering we want to use
         w, choices, clusters = tools.cluster_sampling(recipe_data, 1, w, c)
         rlist, index_list = tools.sample_from_cluster(choices, clusters)

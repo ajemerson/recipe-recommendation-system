@@ -358,8 +358,9 @@ def find_info(rec_rate, ind_list, clustering, recipe_info, clusters):
     # subset the data
     # get relevant rows in list format
     row_list = list(clusters[str(cluster)].index)
+    print(recipe_info.loc[row_list, ['name', clustering]])
     # return a dataframe of only those rows
-    subset = data.iloc[row_list, :]
+    subset = data.loc[row_list, :]
 
     return subset, max_index
 
@@ -372,13 +373,21 @@ def get_closest_neighbors(recipe_index, recipe_cluster, n_neighbors=10):
     :param n_neighbors: number of closest recipes desired
     :return: the list of unique recipes closest to the highest rated recipe
     """
-    recipe_info = pd.read_csv("Data/recipe_data.csv")
+    recipe_info = pd.read_csv("Data/recipe_info.csv").iloc[:, 1:]
     knn = NearestNeighbors(n_neighbors=n_neighbors)
+
+    if len(recipe_cluster) <= 10:
+        return np.unique(recipe_info.name[recipe_cluster.index])
+
+    cluster_recipe_info = recipe_info.iloc[list(recipe_cluster.index)]
+    cluster_recipe_info = cluster_recipe_info.reset_index()
+    print("Cluster subset: ", cluster_recipe_info)
     print("Fitting KNN")
     knn.fit(recipe_cluster)
     print("Fitting complete")
     print("Index: ", recipe_index)
     neighbor_indices = knn.kneighbors(recipe_cluster.loc[recipe_index].values.reshape(1, -1))[1][0]
-    recommendations = recipe_info.name[neighbor_indices].values
+    print("Neighbor indices: ", neighbor_indices)
+    recommendations = cluster_recipe_info.name[neighbor_indices].values
     return np.unique(recommendations)
 
