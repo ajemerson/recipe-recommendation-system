@@ -323,7 +323,7 @@ def find_info(rec_rate, ind_list, clustering, recipe_info, clusters):
         2: t186_gmm4
     :param recipe_info: the recipe_info.csv dataframe with recipe names, types, subtypes, and corresponding clusters
     :param clusters: dictionary of subsetted clusters. Key corresponding to cluster number
-    :return: the subset of data that contains observations corresponding to only that cluster number
+    :return: the subset of data that contains FULL observations corresponding to only that cluster number
     :return index: the index in the original dataset of the highest rated recipe
     """
     # Find the highest rated recipe
@@ -350,4 +350,14 @@ def find_info(rec_rate, ind_list, clustering, recipe_info, clusters):
     print("The recipe's cluster:", cluster)
     print("The recipe's index in the dataset:", max_index)
 
-    return clusters[str(cluster)], max_index
+    if clustering.startswith('e'):
+        data = pd.read_csv('Data/recipes_encoded100.csv').iloc[:, 1:]
+    else:
+        data = pd.read_csv('Data/recipes_normalized_varFS_extraTrees186.csv').iloc[:, 1:]
+    # subset the data
+    # get relevant rows in list format
+    row_list = list(clusters[str(cluster)].index)
+    # return a dataframe of only those rows
+    subset = data.iloc[row_list, :]
+
+    return subset, max_index
