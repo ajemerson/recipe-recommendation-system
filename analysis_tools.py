@@ -142,10 +142,10 @@ def autoencoder(data, dim_enc1, dim_enc2):
     input_vect = Input(shape=(in_size, ))
     # placeholder for encoding
     encoded = Dense(dim_enc1, activation='relu')(input_vect)
-    encoded = Dense(dim_enc2, activation='relu')(encoded)
+    # encoded = Dense(dim_enc2, activation='relu')(encoded)
     # placeholder for decoding
-    decoded = Dense(dim_enc1, activation='relu')(encoded)
-    decoded = Dense(in_size, activation='sigmoid')(decoded)
+    # decoded = Dense(dim_enc1, activation='relu')(encoded)
+    decoded = Dense(in_size, activation='sigmoid')(encoded)
 
     # full autoencoder placeholder
     auto_model = Model(input_vect, decoded)
@@ -157,12 +157,12 @@ def autoencoder(data, dim_enc1, dim_enc2):
     auto_model.compile(optimizer='adadelta', loss=losses.mean_squared_error)
 
     # Training
-    auto_model.fit(data, data, epochs=10, batch_size=256, shuffle=True)
+    auto_model.fit(data, data, epochs=15, batch_size=256, shuffle=True)
     # Extract encoded data
     enc_data = pd.DataFrame(encoder.predict(data))
 
     print('Saving encoded data...')
-    enc_data.to_csv('recipes_encoded100.csv')
+    enc_data.to_csv('recipes_encoded1000.csv')
     print('Encoded data was successfully saved to a csv')
     return enc_data
 
@@ -193,3 +193,15 @@ def dbscan(data, eps, min_samps):
     # append the clustering to the end of the input dataframe
     data['clusters'] = clusters
     return data
+
+
+def init_weights(c_type):
+    """
+    Based on the clustering type that is input, a uniform distribution among
+    the clustering is returned.
+    :param c_type: an integer representing the clustering type. For simplicity,
+        0: 'e100_54'
+        1: 'e100_25'
+        2: 't186_4'
+    :return: a uniform probability distribution among all clusters
+    """

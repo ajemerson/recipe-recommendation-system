@@ -1,7 +1,6 @@
 from tkinter import *
 import pandas as pd
-# import analysis_tools as at
-
+import numpy as np
 
 class RateGui:
     choices = {}
@@ -74,12 +73,66 @@ class RateGui:
         self.master.quit()
 
 
+def init_sampling(data, c_type):
+    """
+    Based on the clustering type that is input, a uniform distribution among
+    the clustering is returned.
+    :param c_type: an integer representing the clustering type. For simplicity,
+        0: 'e100_gmm54'
+        1: 'e100_gmm25'
+        2: 't186_gmm4'
+    :return c: a list of 10 cluster numbers based on the choice of a uniform distribution
+    :return clusters: a dictionary of clusters where each key is the cluster number and each value is a dataframe
+        containing all datapoints from only that cluster
+    """
+    choices = ['e100_gmm54', 'e100_gmm25', 't186_gmm4']
+    # retrieve the corresponding column of the dataset
+    col = data[choices[c_type]]
+    num_clusters = np.max(col)
+    weights = []
+    clusters = {}
+    # calculate the weights and separate the clusters
+    for j in range(num_clusters + 1):
+        weights.append(1 / (num_clusters + 1))
+    for j in range(num_clusters + 1):
+        # keys correspond to cluster number, values correspond to dataframe with only observations of that cluster
+        clusters[str(j)] = data.loc[data[choices[c_type]] == j]
+
+    # Now we can sample a cluster number based on the initial weights
+    print("Keys:", list(clusters.keys()))
+    print("Weights:", weights)
+    c = np.random.choice(list(clusters.keys()), 10, p=weights)
+    print("Clusters to sample from:", c)
+    return c, clusters
+
+
+def sample_from_cluster(choices, clusters):
+    """
+    Performs random sampling for each given cluster
+    :param choices: the cluster numbers (chosen by a weighted sampling) on which to perform a random sampling
+    :param clusters: a dictionary where each key is the cluster number and each value is a dataframe with
+        observations from only that cluster
+    :return: len(choices) number of observations
+    """
+    size = len(choices)
+    rlist = []
+    for i in range(size):
+        sample = clusters[str(choices[i])].sample(1)
+        recipe = sample.name.values
+        rlist.append(recipe[0])
+        print(recipe[0], ':', choices[i])
+    return rlist
+
+
 if __name__ == "__main__":
-    path = '../Datasets/'
-    recipe_data = pd.read_csv(path + 'recipe_info.csv')
-    for i in range(4):
-        root = Tk()
-        rlist = recipe_data.sample(10).name.values
-        my_gui = RateGui(root, rlist, i)
-        root.mainloop()
-        root.destroy()
+    recipe_data = pd.read_csv('Data/recipe_info.csv').iloc[:, 1:]
+    # obtain the weights of sampling from each cluster based on the clustering we want to use
+    choices, clusters = init_sampling(recipe_data, 2)
+    init_rlist = sample_from_cluster(choices, clusters)
+    # for i in range(3):
+    root = Tk()
+    rlist = init_rlist
+    # rlist = recipe_data.sample(10).name.values
+    my_gui = RateGui(root, rlist, 0)  # once we figure out how to update weights based on rankings, change 0 to i because we will loop some number of times
+    root.mainloop()
+    root.destroy()
