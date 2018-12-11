@@ -1,6 +1,7 @@
 from tkinter import *
 import pandas as pd
 import analysis_tools as tools
+import numpy as np
 
 global subdict
 
@@ -76,11 +77,30 @@ class RateGui:
         self.master.quit()
 
 
+class DisplayGUI:
+    def __init__(self, master, recommendations):
+        self.label = Label(master, text="Recommended Recipes!")
+        self.label.grid()
+        self.frm = Frame(root, bd=16, relief='sunken')
+        self.frm.grid()
+        self.recommendations = recommendations
+        self.display_gui(self.frm, self.recommendations)
+        self.close_button = Button(master, text="Close", command=master.quit)
+        self.close_button.grid()
+
+    def display_gui(self, frm, recommendations):
+        label_place = 0
+        for i in range(len(recommendations)):
+            rec = Label(frm, text=recommendations[i])
+            rec.grid(row=label_place, column=0)
+            label_place += 2
+
+
 if __name__ == "__main__":
     recipe_data = pd.read_csv('Data/recipe_info.csv').iloc[:, 1:]
     w = []
     c = {}
-    for gui_iteration in range(5):
+    for gui_iteration in range(1):
         # obtain the weights of sampling from each cluster based on the clustering we want to use
         w, choices, clusters = tools.cluster_sampling(recipe_data, 1, w, c)
         rlist, index_list = tools.sample_from_cluster(choices, clusters)
@@ -92,4 +112,11 @@ if __name__ == "__main__":
 
     # find the info on the highest rated recipe in the last iteration through the GUI
     cluster_data, max_index = tools.find_info(subdict, index_list, 1, recipe_data, clusters)
-    print(tools.get_closest_neighbors(max_index, cluster_data))
+    recommendations, neighbor_distances = tools.get_closest_neighbors(max_index, cluster_data)
+    print("Recommendations: ", recommendations)
+    print("Distances: ", neighbor_distances)
+    root = Tk()
+    display_gui = DisplayGUI(root, np.unique(recommendations))
+    root.mainloop()
+    root.destroy()
+

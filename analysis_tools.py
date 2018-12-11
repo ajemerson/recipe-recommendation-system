@@ -377,8 +377,8 @@ def get_closest_neighbors(recipe_index, recipe_cluster, n_neighbors=10):
     recipe_info = pd.read_csv("Data/recipe_info.csv").iloc[:, 1:]
     knn = NearestNeighbors(n_neighbors=n_neighbors)
 
-    if len(recipe_cluster) <= 10:
-        return np.unique(recipe_info.name[list(recipe_cluster.index)])
+    if len(recipe_cluster) < n_neighbors:
+        return get_closest_neighbors(recipe_index, recipe_cluster, n_neighbors-1)
 
     cluster_recipe_info = recipe_info.iloc[list(recipe_cluster.index)]
     cluster_recipe_info = cluster_recipe_info.reset_index()
@@ -387,8 +387,11 @@ def get_closest_neighbors(recipe_index, recipe_cluster, n_neighbors=10):
     knn.fit(recipe_cluster)
     print("Fitting complete")
     print("Index: ", recipe_index)
-    neighbor_indices = knn.kneighbors(recipe_cluster.loc[recipe_index].values.reshape(1, -1))[1][0]
+    neighbors = knn.kneighbors(recipe_cluster.loc[recipe_index].values.reshape(1, -1))
+    neighbor_distances = neighbors[0][0]
+    neighbor_indices = neighbors[1][0]
     print("Neighbor indices: ", neighbor_indices)
+    print("Neighbor distances: ", neighbor_distances)
     recommendations = cluster_recipe_info.name[neighbor_indices].values
-    return np.unique(recommendations)
+    return recommendations, neighbor_distances
 
