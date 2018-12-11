@@ -375,7 +375,7 @@ def get_closest_neighbors(recipe_index, recipe_cluster, n_neighbors=10):
     :return: the list of unique recipes closest to the highest rated recipe
     """
     recipe_info = pd.read_csv("Data/recipe_info.csv").iloc[:, 1:]
-    knn = NearestNeighbors(n_neighbors=n_neighbors)
+    knn = NearestNeighbors(n_neighbors=n_neighbors, metric='correlation')
 
     if len(recipe_cluster) < n_neighbors:
         return get_closest_neighbors(recipe_index, recipe_cluster, n_neighbors-1)
