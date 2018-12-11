@@ -2,8 +2,8 @@
 # Requirements:
 - **Python 3.7**: This project assumes that dictionaries have some notion of consistent ordering. By default, 3.7 makes this assumption. Otherwise, dictionaries should be changed to OrderedDict.
 - **TO DEMO:**
-1. Download recipe_info.csv, recipes_encoded100.csv, and recipes_normalized_varFS_extraTrees186.csv from the Google Drive link below
-2. Run recipe_rate_gui.py and select the type of data-cluster combination desired. Bon Appetit!
+>> 1. Download recipe_info.csv, recipes_encoded100.csv, and recipes_normalized_varFS_extraTrees186.csv from the Google Drive link below
+>> 2. Run recipe_rate_gui.py and select the type of data-cluster combination desired. Bon Appetit!
 # Project Goal: 
 Data-driven recipe recommendation system using web-scraped recipe data (including but not limited to data like ingredients, health facts, etc.) and user’s historical preference.
 # Motivation:
