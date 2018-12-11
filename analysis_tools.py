@@ -287,7 +287,7 @@ def reweight(w, rate_dict, choices, clusters):
         indices = choices == i  # a 1 will be at the index where the recipe belongs to the ith cluster
         tot_scores[i] = np.dot(indices, ratings)
     # Perform an element-wise division
-    avg_scores = np.divide(tot_scores, divs, out=np.zeros_like(tot_scores), where=divs!=0)
+    avg_scores = np.divide(tot_scores, divs, out=np.zeros_like(tot_scores), where=divs != 0)
     print("Dividends:", divs)
     print("Total Scores:", tot_scores)
     print("Average Scores:", avg_scores)
@@ -377,7 +377,7 @@ def get_closest_neighbors(recipe_index, recipe_cluster, n_neighbors=10):
     knn = NearestNeighbors(n_neighbors=n_neighbors)
 
     if len(recipe_cluster) <= 10:
-        return np.unique(recipe_info.name[recipe_cluster.index])
+        return np.unique(recipe_info.name[list(recipe_cluster.index)])
 
     cluster_recipe_info = recipe_info.iloc[list(recipe_cluster.index)]
     cluster_recipe_info = cluster_recipe_info.reset_index()

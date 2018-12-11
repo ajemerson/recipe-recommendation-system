@@ -4,6 +4,7 @@ import analysis_tools as tools
 
 global subdict
 
+
 class RateGui:
     choices = {}
     vars = {}
