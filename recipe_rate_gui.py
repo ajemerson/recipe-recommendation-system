@@ -71,7 +71,7 @@ class RateGui:
             for j in range(5):  # for each button
                 if self.vars[str(j+1) + str(i)].get():
                     self.choices[self.recipe_list[i]] = int(self.vars[str(j+1) + str(i)].get())
-        keys = list(self.choices.keys())[10*self.counter:]  # subsets dictionary to yield only the current recipes
+        keys = list(self.choices.keys())[-10:]  # subsets dictionary to yield only the current recipes
         subdict = {x: self.choices[x] for x in keys if x in self.choices}
         self.master.quit()
 
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     recipe_data = pd.read_csv('Data/recipe_info.csv').iloc[:, 1:]
     w = []
     c = {}
-    for gui_iteration in range(1):
+    for gui_iteration in range(5):
         # obtain the weights of sampling from each cluster based on the clustering we want to use
         w, choices, clusters = tools.cluster_sampling(recipe_data, 1, w, c)
         rlist, index_list = tools.sample_from_cluster(choices, clusters)

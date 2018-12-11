@@ -248,7 +248,9 @@ def sample_from_cluster(choices, clusters):
     size = len(choices)
     rlist = []
     index_list = []
-    for i in range(size):
+
+    i = 0
+    while len(rlist) < size:
         cluster = clusters[str(choices[i])]  # the dataframe of that cluster only
         sample = cluster.sample(1)
         recipe = sample.name.values
@@ -258,8 +260,7 @@ def sample_from_cluster(choices, clusters):
             rlist.append(recipe[0])
             index_list.append(index)
             print(recipe[0], ':', choices[i])
-        else:
-            i -= 1
+            i += 1
     return rlist, index_list
 
 
