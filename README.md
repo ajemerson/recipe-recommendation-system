@@ -20,11 +20,17 @@ We scraped a total of **61,880** recipes, and parsed the set of ingredients to p
 - **recipes_encoded100.csv**: recipe dimensions were reduced from 7000+ to 100 using a stacked autoencoder of hidden layers 1000 and 100. Input Set: recipes_normalized_varFS.csv. Output Size: (61880, 100)
 - **recipes_encoded1000.csv**: recipe dimensions were reduced from 7000+ to 1000 using a one-hidden-layer autoencoder. Input Set: recipes_normalized_varFS.csv. Output Size: (61880, 1000)
 # References:
-- A possible basis for our own dataset: https://www.kaggle.com/hugodarwood/epirecipes 
-- Resource for dataset (includes tags): https://www.epicurious.com/search/ 
-- Resource for dataset (can search by meal type): https://www.allrecipes.com/recipes/
-- GAN paper: https://papers.nips.cc/paper/5423-generative-adversarial-nets.pdf
-- GAN blog: https://towardsdatascience.com/generative-adversarial-networks-explained-34472718707a
-- GMM slide deck: http://statweb.stanford.edu/~tibs/stat315a/LECTURES/em.pdf
-- Conditional GAN: https://arxiv.org/abs/1411.1784
-- Recommendation Systems Overview: http://infolab.stanford.edu/~ullman/mmds/ch9.pdf 
+- https://scikitlearn.org/stable/modules/generated/sklearn.metrics.calinski_harabaz_score.html#sklearn.metrics.calinski_harabaz_score
+- https://scikit-learn.org/stable/modules/mixture.html
+- http://statweb.stanford.edu/~tibs/stat315a/LECTURES/em.pdf
+- http://ufldl.stanford.edu/tutorial/unsupervised/Autoencoders/
+- LeCun, Y., Bengio, Y., & Hinton, G. (2015). Deep learning. nature, 521(7553), 436.
+- https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html
+- https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.NearestNeighbors.html#sklearn.neighbors.NearestNeighbors
+- https://scikitlearn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html#sklearn.ensemble.ExtraTreesClassifier
+- https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
+- https://www.kaggle.com/kaggle/recipe-ingredients-dataset
+- https://www.allrecipes.com
+- Rätsch, G., Onoda, T., & Müller, K. R. (2001). Soft margins for AdaBoost. Machine learning, 42(3), 287-320.
+- Sutton, R. S., & Barto, A. G. (2018). Reinforcement learning: An introduction. MIT press.
+Balabanović, M., & Shoham, Y. (1997). Fab: content-based, collaborative recommendation. Communications of the ACM, 40(3), 66-72.
