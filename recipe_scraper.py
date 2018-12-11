@@ -160,5 +160,5 @@ if __name__ == "__main__":
         print(i)
         temp = generate_dataset(sub_categories.loc[i]['type'], sub_categories.loc[i]['subtype'], sub_categories.loc[i]['url'])
         data = data.append(temp)
-        data.to_csv('data6.csv')
+        data.to_csv('Data/data.csv')
 

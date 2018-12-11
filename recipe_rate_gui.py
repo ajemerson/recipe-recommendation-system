@@ -98,7 +98,7 @@ class DisplayGUI:
 
 if __name__ == "__main__":
     # Data selection: 0 for AE100-GMM54, 1 for AE100-GMM25, 2 for ET186-GMM4
-    data_selection = 0
+    data_selection = 2
     recipe_data = pd.read_csv('Data/recipe_info.csv').iloc[:, 1:]
     w = []
     c = {}

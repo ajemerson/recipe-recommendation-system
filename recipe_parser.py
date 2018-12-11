@@ -202,9 +202,7 @@ def temp():
         # Will be used to construct dataframe
         return dictionary
 
-
-    path = "/Users/nathanpool/Desktop/Recipe-Recommendation-System/Data/"
-    data = pd.read_csv(path + 'preparsed_data.csv')
+    data = pd.read_csv('Data/preparsed_data.csv')
     import ast
     ingz = []
     for i in range(len(data)):
